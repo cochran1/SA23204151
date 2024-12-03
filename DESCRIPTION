@@ -13,5 +13,5 @@ RoxygenNote: 7.3.2
 Encoding: UTF-8
 Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
-URL: http://github.com/23204151/SA23204151
-BugReports: http://github.com/23204151/SA23204151/issues
+URL: http://github.com/cochran1/SA23204151
+BugReports: http://github.com/cochran1/SA23204151/issues
