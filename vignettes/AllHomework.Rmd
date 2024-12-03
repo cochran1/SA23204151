@@ -1,0 +1,1874 @@
+---
+title: "AllHomework"
+author: "Rui Wu"
+date: "2024-12-3"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to R-package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# A-SA23204151-2024-09-11
+
+## Example1: Newton's method
+
+### Introduce
+
+Newton's method, also known as the Newton-Raphson method, is an iterative numerical technique for finding approximate solutions of real-valued functions. It is primarily used for solving equations of the form : $f(x)=0$, where $f$ is a real-valued function. The basic idea is to use the first derivative of the function to find successively better approximations to the roots or zeroes of the function.
+Here is a detailed explanation of the process and the underlying principles of Newton's method:
+
+1.Conceptual Basis
+
+The method is based on the idea of linear approximation. At a given point $x_{n}$ on the curve $y=f(x)$, we can approximate $f(x)$ using its tangent line at that point. The equation of the tangent line can be derived using the point-slope form, which gives us the following equation:$y=f^{'}(x_{n})(x-x_{n})+f(x_{n})$
+
+To find the $x$-intercept which is the root we want, we set $y=0$:
+$0=f^{'}(x_{n})(x-x_{n})+f(x_{n})$
+
+Rearranging this gives the expression for the next approximation $x_{n+1}$:$x_{n+1}=x_{n}-\frac{f(x_{n})}{f^{'}(x_{n})}$
+
+2.Steps of the Method
+
+The steps to apply Newton's method are as follows:
+
+Step 1: Choose an Initial Guess
+Start with an initial guess $x_{0}$. The choice of $x_{0}$ can affect convergence; a value close to the actual root usually works best.
+
+Step 2: Compute the Function and Derivative
+Calculate $f(x_{0})$ and $f^{'}(x_{0})$.
+
+Step 3: Update the Approximation
+Use the Newton iteration formula to compute a new approximation:$x_{n+1}$:$x_{n+1}=x_{n}-\frac{f(x_{n})}{f^{'}(x_{n})}$
+
+Step 4: Check for Convergence
+Determine whether the approximation is satisfactory by checking if the absolute difference $|x_{n+1}−x_{n}|$ is less than a specified tolerance level $\epsilon$. If so, the process can stop, and $x_{n+1}$ can be accepted as an approximate root.
+
+Step 5: Repeat
+If the desired precision has not been achieved, set $x_{n}=x_{n+1}$ and repeat Steps 2 to 4 until convergence is reached.
+
+### Code of the algorithm
+
+```{r prompt=TRUE}
+newton_iteration <- function(f, f_prime, x0, num_iterations) 
+  {
+  x <- c(x0) 
+  for (i in 1:num_iterations) {
+    x_new <- x[length(x)] - f(x[length(x)])/f_prime(x[length(x)])
+    x <- c(x, x_new)
+  }
+  return(x)
+  }
+```
+
+### Application of this method
+
+```{r echo=FALSE}
+f <- function(x) {x^3 - 4*x - 1}
+df <- function(x) {3*x^2 - 4}
+initial_guess <- 1.0
+num_iterations <- 10
+
+iterations <- newton_iteration(f, df, initial_guess, num_iterations)
+last_value <- iterations[length(iterations)]
+```
+
+Let's take a function and find its zero point.
+
+For example: $f(x)=x^3-4x-1$
+
+After a simple calculation, we are able to obtain its derivative function: $f'(x)=3x^2-4$
+
+In the end, we bring the function, derivative, and randomly determined initial points into the algorithm and get the result: $root=$ `r last_value`
+
+### Draw the process diagram
+
+To see the convergence process more intuitively, we draw the images:
+
+```{r echo=FALSE}
+plot(iterations, type="b", xlab="Iterations", ylab="x", main="Newton Iteration Process")
+```
+
+```{r echo=FALSE}
+knitr::asis_output("\\newpage")
+```
+
+## Example2: linear regression
+
+### Introduce
+
+Linear regression is a foundational and powerful statistical method used to model the relationship between independent variables features and a dependent variable target. The primary goal is to predict the dependent variable $y$ based on one or more independent variables $x_{1},...,x_{n}$.
+
+2.Model Assumption
+The linear regression model is typically represented as follows:$y=\omega_{1}x_{1}+...+\omega_{n}x_{n}+b$
+Where:
+$y$is the dependent variable target.
+$x_{1},...,x_{n}$ are independent variables features.
+$\omega_{1},...,\omega_{n}$ are the corresponding weights coefficients.
+$b$ is the intercept biasterm.
+
+3.Loss Function
+To evaluate the predictive performance of a linear regression model, we typically use the Mean Squared Error MSE as the loss function. The formula for MSE is as follows:$MSE=\frac{1}{m}\sum_{i=1}^{m}(y_{i}-\hat{y}_{i})^{2}$
+Where:
+$m$ is the sample size.
+$y_{i}$ is the actual observed value.
+$\hat{y}_{i}$ is the predicted value.
+
+
+### Code of the algorithm
+
+```{r prompt=TRUE}
+data(mtcars)
+model <- lm(mpg ~ hp, data = mtcars)
+```
+
+We performed a linear regression on the two variables called mpg and hp in the dataset mtcars, and the regression results are shown below in the table.
+
+```{r echo=FALSE}
+co <- summary(model)$coefficients
+knitr::kable(co)
+```
+
+### Draw the scatter diagram and regression line
+
+We give the more intuitive scatter plots and regression lines below.
+
+```{r echo=FALSE}
+plot(mtcars$hp, mtcars$mpg, xlab = "Weight", ylab = "MPG", main = "Scatter Plot with Regression Line")
+
+abline(model, col = "red")
+
+legend("topright", legend = "Regression Line", col = "red", lwd = 1)
+```
+
+```{r echo=FALSE}
+knitr::asis_output("\\newpage")
+```
+
+## Example3: k-means clustering algorithm
+
+### Introduce
+
+K-means algorithm is a popular clustering algorithm used in unsupervised machine learning. The goal of K-means is to partition a given dataset into K clusters, where each data point belongs to the cluster with the nearest mean value.
+
+The main goal of the K-means algorithm is to assign each data point to one of 𝐾 clusters in such a way that the sum of the squared distances between the data points and their assigned cluster centroids the average of the points in the cluster is minimized.
+Mathematically, this is formulated as:
+$J=\sum_{k=1}^{K}\sum_{x\in C_{k}}|x-\mu_{k}|^{2}$
+
+Where:
+$J$ is the objective function we want to minimize.
+$K$ is the number of clusters.
+$C_{k}$ is the set of points in the $k$-th cluster.
+$x$ is a data point in the dataset.
+$\mu_{k}$ is the centroid of the $k$-th cluster.
+$|x-\mu_{k}|$ denotes the Euclidean distance between point $x$ and centroid $\mu_{k}$.
+
+It is widely used for clustering analysis in various domains, such as data mining, pattern recognition, and image segmentation. It is a simple and efficient algorithm, but its results can vary depending on the initial cluster centers and the choice of K.
+
+Below, we will randomly generate some data and use k-means algorithm to cluster them, what's more, we will show the results in the form of table and image.
+
+### Code of the algorithm
+
+```{r prompt=TRUE}
+data <- matrix(rnorm(100), ncol = 2)  
+k <- 3  
+result <- kmeans(data, centers = k)
+```
+
+We generate a random matrix, treat it as the coordinates of 100 points and classify them.
+
+We decide in advance and divided them into 3 categories.
+
+The result is shown below.
+
+```{r comment='', echo=FALSE}
+print(result)
+```
+
+### Draw the result of clusters
+
+In the end, we draw the result of clusters with different colors and point out the center of each cluster by triangles.
+
+```{r echo=FALSE}
+plot(data, col = result$cluster, pch = 16)
+points(result$centers, col = 1:k, pch = 17)
+```
+
+# A-SA23204151-2024-09-18
+
+## Exercise 3.4
+
+PROBLEM: 
+
+The Rayleigh density is $f(x)=\frac{x}{\sigma^{2}}e^{-x^{2}/(2\sigma^{2})}, x\geq0, \sigma>0.$ Develop an algorithm to generate random samples from a Rayleigh($\sigma$) distribution. Generate Rayleigh($\sigma$) samples for several choices of $\sigma>0$ and check that the mode of the generated samples is close to the theoretical mode $\sigma$ (check the histogram).
+
+
+SOLVE:
+
+To generate random samples from a Rayleigh distribution and check that the mode of the generated samples is close to the theoretical mode, we can follow these steps:
+
+1.Understand the Rayleigh Distribution: The probability density function  of the Rayleigh distribution is given by:$f(x)=\frac{x}{\sigma^{2}}e^{-x^{2}/(2\sigma^{2})}, x\geq0, \sigma>0.$
+
+2.Generate Random Samples: We can use the inverse transform sampling method to generate samples from the Rayleigh distribution. The cumulative distribution function of the Rayleigh distribution is:$F(x)=1-e^{-x^{2}/(2\sigma^{2})}$
+
+3.To generate a sample, we can set $U$ as a uniform random variable in the interval $U(0,1)$ and solve for $x=\sigma\sqrt{-2In(1-U)}$
+
+### Code
+
+```{r}
+generate_rayleigh_samples <- function(sigma, n_samples) {
+  U <- runif(n_samples)  
+  samples <- sigma * sqrt(-2 * log(1 - U))  
+  return(samples)
+}
+
+plot_histogram <- function(samples, sigma) {
+  hist(samples, breaks=30, probability=TRUE, col='lightgreen', 
+       main=paste('Rayleigh Samples Histogram (sigma =', sigma, ')'), 
+       xlab='Value', ylab='Density')
+  
+
+  x <- seq(0, max(samples), length.out=1000)
+  pdf <- (x / sigma^2) * exp(-x^2 / (2 * sigma^2))
+  lines(x, pdf, col='red', lwd=2) 
+}
+
+
+main <- function() {
+  sigmas <- c(1, 2, 3)  
+  n_samples <- 10000
+  
+  for (sigma in sigmas) {
+    samples <- generate_rayleigh_samples(sigma, n_samples)
+    plot_histogram(samples, sigma)
+    
+
+    hist_data <- hist(samples, breaks=30, plot=FALSE)
+    mode_estimate <- hist_data$mids[which.max(hist_data$counts)]
+    cat(sprintf('Estimated mode for sigma=%.2f: %.2f, Theoretical mode: %.2f\n', sigma, mode_estimate, sigma))
+  }
+}
+
+main()
+
+```
+
+Finally, we successfully use the  method to generate samples, and use the histogram to compare the generated samples with the target distribution.
+
+
+## Exercise 3.11
+
+PROBLEM: 
+
+Generate a random sample of size $1000$ from a normal location mixture. The components of the mixture have $N(0,1)$ and $N(3,1)$ distributions with mixing probabilities $p_{1}$ and $p_{2}=1-p_{1}$. Graph the histogram of the sample with density superimposed, for $p_{1}=0.75$. Repeat with different values for $p_{1}$ and observe whether the empirical distribution of the mixture appears to be bimodal. Make a conjecture about the values of $p_{1}$ that produce bimodal mixtures.
+
+SOLVE:
+
+The problem asks us to generate a random sample of size 1000 from a normal location mixture, where the components have $N(0,1)$ and $N(3,1)$ distributions with mixing probabilities $p_{1}$ and $p_{2}=1-p_{1}$, respectively.
+
+We first set the seed for reproducibility, and then define the parameters of the mixture, $p_{1}$ and $p_{2}$.
+
+We generate the random sample by concatenating two vectors, one from the $N(0,1)$ distribution with $n\times p_{1}$ elements, and one from the $N(3,1)$ distribution with $n\times p_{2}$ elements.
+
+We plot the histogram of the sample with the density superimposed, using the hist() and curve() functions. The density is calculated as $p_{1}\times\phi(x;0,1)+p_{2}\times\phi(x;3,1)$, where $\phi(x;\mu,\sigma)$ is the probability density function of the normal distribution with mean $\mu$ and standard deviation $\sigma$.
+
+We then repeat the process with different values of $p_{1}=0.25,0.5,0.75,0.9$ to observe the effect on the empirical distribution of the mixture.
+
+### Code
+
+```{r}
+generate_mixture_sample <- function(n, p1) {
+  p2 <- 1 - p1
+  components <- sample(c(1, 2), size = n, replace = TRUE, prob = c(p1, p2))
+  samples <- ifelse(components == 1, rnorm(n, mean = 0, sd = 1), rnorm(n, mean = 3, sd = 1))
+  return(samples)
+}
+
+n <- 1000
+p1_values <- c(0.25, 0.5, 0.75)
+
+par(mfrow = c(1, length(p1_values))) 
+
+for (p1 in p1_values) {
+  samples <- generate_mixture_sample(n, p1)
+  hist(samples, breaks = 30, probability = TRUE, main = paste("Histogram for p1 =", p1),
+       xlab = "Value", ylim = c(0, 0.4), col = "lightgray")
+  
+  lines(density(samples), col = "blue", lwd = 2)
+}
+```
+
+
+## Exercise 3.20
+
+PROBLEM: 
+
+A compound Poisson process is a stochastic process ${X(t),t\geq0}$ that can be represented as the random sum $X(t)=\sum_{i=1}^{N(t)}Y_{i}$, where ${N(t),t\geq0}$ is a Poisson process and $Y_{1},Y_{2},...$ are iid and independent of ${N(t),t\geq0}.$
+
+Write a program to simulate a compound Poisson($\lambda$)–Gamma process ($Y$ has a Gamma distribution). Estimate the mean and the variance of $X(10)$ for several choices of the parameters and compare with the theoretical values. Hint: Show that $E[X(t)] = λtE[Y_1]$ and $Var(X(t)) = λtE[Y_{1}^{2}]$.
+
+SOLVE:
+To simulate a compound Poisson-Gamma process and estimate its mean and variance, we can break down the task into several steps:
+
+1.Compound Poisson Process:A compound Poisson process $X(t)=\sum_{i=1}^{N(t)}Y_{i}$, where $N(t)$ is a Poisson process with rate $\lambda$ and $Y_{i}$ are independent and identically distributed iid random variables.
+In our case, $Y_{i}$ will follow a Gamma distribution.
+
+2.Mean and Variance:
+The expected value is given by:$E[X(t)=\lambda tE(Y_{1})]$
+
+The variance is:$Var(X(t))=\lambda tE[Y_{1}^{2}]$
+
+For a Gamma distribution $Y∼Gamma(k,\theta)$:
+
+Mean $E[Y]=k\theta$
+
+Variance $Var(Y)=k\theta^{2}$,$E[Y^{2}]=Var(Y)+(E[Y])^{2}$
+
+```{r}
+# Load required package
+library(ggplot2)
+
+# Set parameters
+lambda <- 2  # rate of the Poisson process
+k <- 3       # shape parameter of Gamma distribution
+theta <- 2   # scale parameter of Gamma distribution
+t <- 10      # time point at which to evaluate
+
+# Function to simulate a compound Poisson-Gamma process
+simulate_compound_poisson_gamma <- function(lambda, k, theta, t) {
+  # Number of events in a Poisson process
+  N_t <- rpois(1, lambda * t)
+  
+  # Generate Gamma distributed random variables
+  Y <- rgamma(N_t, shape = k, scale = theta)
+  
+  # Sum of Y's gives us X(t)
+  X_t <- sum(Y)
+  return(X_t)
+}
+
+# Simulate the process multiple times
+n_simulations <- 10000
+simulations <- replicate(n_simulations, simulate_compound_poisson_gamma(lambda, k, theta, t))
+
+# Calculate empirical mean and variance
+empirical_mean <- mean(simulations)
+empirical_variance <- var(simulations)
+
+# Theoretical values
+E_Y <- k * theta
+Var_Y <- k * theta^2
+E_Y_squared <- Var_Y + E_Y^2
+theoretical_mean <- lambda * t * E_Y
+theoretical_variance <- lambda * t * E_Y_squared
+
+# Output results
+cat("Empirical Mean:", empirical_mean, "\n")
+cat("Empirical Variance:", empirical_variance, "\n")
+cat("Theoretical Mean:", theoretical_mean, "\n")
+cat("Theoretical Variance:", theoretical_variance, "\n")
+```
+
+# A-SA23204151-2023-9-30
+
+## Exercise 5.4
+
+PROBLEM: Write a function to compute a Monte Carlo estimate of the $Beta(3, 3)$ cdf, and use the function to estimate $F(x)$ for $x=0.1,0.2,0.3,...,0.9$. Compare the estimates with the values returned by the pbeta function in R.
+
+CODE:
+```{r}
+monte_carlo_beta_cdf <- function(x, n_samples = 100000) {
+  samples <- rbeta(n_samples, 3, 3)
+  estimate <- mean(samples <= x)
+  return(estimate)
+}
+
+x_values <- seq(0.1, 0.9, by = 0.1)
+monte_carlo_estimates <- sapply(x_values, monte_carlo_beta_cdf)
+
+r_values <- pbeta(x_values, 3, 3)
+
+results <- data.frame(x = x_values, 
+                      Monte_Carlo_Estimate = monte_carlo_estimates, 
+                      R_pbeta = r_values)
+
+print(results)
+
+```
+
+
+## Exercise 5.9
+
+PROBLEM: The Rayleigh density is $f(x)=\frac{x}{\sigma^{2}}e^{-x^{2}/(2\sigma^{2})}$, $x\geq0$, $\sigma>0$ 
+Implement a function to generate samples from a Rayleigh($\sigma$) distribution,
+using antithetic variables. What is the percent reduction in variance of $\frac{X+X^{'}}{2}$ 
+compared with $\frac{X_{1}+X_{2}}{2}$ for independent $X_{1},X_{2}$?
+
+SOLVE:
+Generate n samples of the Rayleigh distribution. The uniform distributed random number generator (runif) is used to generate Rayleigh samples by transforming the formula.Specifically, two different transformations ($X_1$ and $X_2$) are used and then their average is taken to generate the final sample.
+
+CODE:
+```{r}
+generate_rayleigh_antithetic <- function(n, sigma) {
+  u1 <- runif(n)
+  u2 <- 1 - u1  
+  
+  x1 <- sigma * sqrt(-2 * log(u1))
+  x2 <- sigma * sqrt(-2 * log(u2))
+  
+  return(list(x1 = x1, x2 = x2))
+}
+
+percent_reduction_variance <- function(x1, x2) {
+  avg_independent <- (x1 + x2) / 2
+  var_independent <- var(avg_independent)
+  
+  avg_antithetic <- (x1 + x2) / 2
+  var_antithetic <- var(avg_antithetic)
+  
+  reduction <- (var_independent - var_antithetic) / var_independent * 100
+  
+  return(reduction)
+}
+
+n <- 10000  
+sigma <- 1  
+
+samples <- generate_rayleigh_antithetic(n, sigma)
+
+reduction <- percent_reduction_variance(samples$x1, samples$x2)
+
+print(paste("Percent reduction in variance:", reduction))
+
+```
+
+
+## Exercise 5.13
+
+PROBLEM: Find two importance functions $f_1$ and $f_2$ that are supported on $(1,\infty)$ and are ‘close’ to
+$$
+g(x) = \frac{x^2}{\sqrt{2\pi}}e^{-x^2/2}, x>1
+$$
+which of your two importance functions should produce the smaller variance in estimating
+$$
+\int_1^\infty \frac{x^2}{\sqrt{2\pi}}e^{-x^2/2} dx
+$$
+by importance sampling? Explain.
+
+SOLVE: 
+We follow similar principles, randomly, we choose the functions:
+$$
+g_1(x)=xe^{-\frac{x^2-1}{2}},g_2(x)=\frac{x^3}{3}e^{-\frac{x^2-1}{2}},x>1
+$$
+
+So if we want to compare the variance produced by $g_1(x)$ and $g_2(x)$ , we just need to compute $Var[\frac{g(x)}{g_1(x)}] = \frac{1}{2 \pi e}Var[X_1]$ and $Var[\frac{g(x)}{g_2(x)}] = \frac{9}{2 \pi e}Var[\frac{1}{X_2}]$.
+
+And then after simple calculation we have:
+$$
+Var(X_1)=EX_1^2-E^2X_1 \approx 3-e ,
+Var(\frac{1}{X_2})=EX_2^2-E^2X_2 \approx \frac{1}{3} - \frac{e}{9}
+$$
+
+So we have:
+$$
+Var[\frac{g(x)}{g_1(x)}] = \frac{1}{2 \pi e}Var[X_1] = \frac{3-e}{2 \pi e} = \frac{9}{2 \pi e}\frac{3 - e}{9} = \frac{9}{2 \pi e}Var[\frac{1}{X_2}] = Var[\frac{g(x)}{g_2(x)}]
+$$
+
+We were surprised to find that the variance created by functions $g_1(x)$ and $g_2(x)$ is the same.
+
+## Exercise 
+PROBLEM:Monte Carlo experiment:
+For $n=10^{4}$, $2×10^{4}$, $4×10^{4}$, $6×10^{4}$, $8×10^{4}$, apply the fast sorting algorithm to randomly permuted numbers of $1,...,n$.
+Calculate computation time averaged over $100$ simulations, denoted by $a_{n}$.
+Regress $a_n$ on $t_n := n\log(n)$, and graphically show the results (scatter plot and regression line).
+
+CODE:
+```{r}
+library(ggplot2)
+
+monte_carlo_sorting <- function(n, simulations = 100) {
+  times <- numeric(simulations)
+  
+  for (i in 1:simulations) {
+    random_numbers <- sample(1:n)
+    
+    start_time <- Sys.time()
+    sorted_numbers <- sort(random_numbers)  
+    end_time <- Sys.time()
+    times[i] <- as.numeric(difftime(end_time, start_time, units = "secs")) * 1000
+  }
+
+  return(mean(times))
+}
+
+n_values <- c(10^4, 2 * 10^4, 4 * 10^4, 6 * 10^4, 8 * 10^4)
+
+average_times <- sapply(n_values, monte_carlo_sorting)
+
+t_n <- n_values * log(n_values)
+
+data <- data.frame(t_n = t_n, average_time = average_times)
+
+model <- lm(average_time ~ t_n, data = data)
+
+summary(model)
+
+ggplot(data, aes(x = t_n, y = average_time)) +
+  geom_point() +
+  geom_smooth(method = "lm", col = "blue") +
+  labs(title = "Average Sorting Time vs. t_n",
+       x = "t_n = n * log(n)",
+       y = "Average Sorting Time (ms)") +
+  theme_minimal()
+
+```
+
+# A-SA23204151-2024-10-1
+
+## Exercise 6.6
+PROBLEM:
+
+Estimate the $0.025$, $0.05$, $0.95$, and $0.975$ quantiles of the skewness $\sqrt{b_1}$ under
+normality by a Monte Carlo experiment. Compute the standard error of the estimates from (2.14) using the normal approximation for the density (with exact variance formula). Compare the estimated quantiles with the quantiles of the large sample approximation $\sqrt{b_1}≈N(0, 6/n)$.
+
+SOLVE:
+
+1.Simulate a large number of samples from a normal distribution.
+
+2.Calculate the skewness for each sample.
+
+3.Estimate the desired quantiles from the skewness values.
+
+4.Compute the standard error of the estimates.
+
+5.Compare the estimated quantiles with the theoretical quantiles from the normal approximation.
+
+CODE:
+```{r echo=FALSE}
+# Load necessary library
+library(moments)
+
+# Set parameters
+n <- 30  # Sample size
+num_simulations <- 10000  # Number of Monte Carlo simulations
+
+# Initialize a vector to store skewness values
+skewness_values <- numeric(num_simulations)
+
+# Monte Carlo simulation
+set.seed(123)  # For reproducibility
+for (i in 1:num_simulations) {
+  sample_data <- rnorm(n)  # Generate a sample from a normal distribution
+  skewness_values[i] <- skewness(sample_data)  # Calculate skewness
+}
+
+# Calculate the square root of skewness
+sqrt_skewness <- sqrt(skewness_values)
+
+# Remove NA or NaN values
+sqrt_skewness <- sqrt_skewness[!is.na(sqrt_skewness) & !is.nan(sqrt_skewness)]
+
+# Estimate quantiles
+quantiles_estimated <- quantile(sqrt_skewness, probs = c(0.025, 0.05, 0.95, 0.975), na.rm = TRUE)
+
+# Compute standard error of the estimates
+standard_error <- sd(sqrt_skewness) / sqrt(length(sqrt_skewness))
+
+# Theoretical quantiles from the normal approximation
+theoretical_quantiles <- qnorm(c(0.025, 0.05, 0.95, 0.975), mean = 0, sd = sqrt(6/n))
+
+# Output results
+list(
+  estimated_quantiles = quantiles_estimated,
+  standard_error = standard_error,
+  theoretical_quantiles = theoretical_quantiles
+)
+```
+
+## Exercise 6.B
+
+PROBLEM:
+
+Tests for association based on Pearson product moment correlation $\rho$, Spear- man’s rank correlation coefficient $\rho_{s}$, or Kendall’s coefficient $\tau$, are imple-mented in cor.test. Show (empirically) that the nonparametric tests based on $\rho_{s}$ or $\tau$ are less powerful than the correlation test when the sampled dis- tribution is bivariate normal. Find an example of an alternative (a bivariate distribution $(X,Y)$ such that $X$ and $Y$ are dependent) such that at least one of the nonparametric tests have better empirical power than the correlation test against this alternative.
+
+SLOVE:
+
+To address the problem of comparing the power of Pearson's correlation test with nonparametric tests (Spearman's rank correlation and Kendall's tau) under different distributions, we can follow these steps:
+
+1.Simulate Bivariate Normal Data: Generate samples from a bivariate normal distribution and perform correlation tests to show that the nonparametric tests are less powerful.
+
+2.Simulate a Dependent Bivariate Distribution: Create a bivariate distribution where the variables are dependent but not normally distributed, and show that at least one of the nonparametric tests has better empirical power than the Pearson correlation test.
+
+CODE:
+```{r echo=FALSE}
+library(MASS) 
+library(ggplot2)
+
+n <- 1000 
+alpha <- 0.05 
+num_simulations <- 1000 
+
+calculate_power <- function() {
+  pearson_rejects <- 0
+  spearman_rejects <- 0
+  kendall_rejects <- 0
+  
+  for (i in 1:num_simulations) {
+    data <- mvrnorm(n, mu = c(0, 0), Sigma = matrix(c(1, 0.8, 0.8, 1), nrow = 2))
+    x <- data[, 1]
+    y <- data[, 2]
+    
+    pearson_test <- cor.test(x, y, method = "pearson")
+    spearman_test <- cor.test(x, y, method = "spearman")
+    kendall_test <- cor.test(x, y, method = "kendall")
+    
+    if (pearson_test$p.value < alpha) pearson_rejects <- pearson_rejects + 1
+    if (spearman_test$p.value < alpha) spearman_rejects <- spearman_rejects + 1
+    if (kendall_test$p.value < alpha) kendall_rejects <- kendall_rejects + 1
+  }
+  
+  return(c(pearson_rejects, spearman_rejects, kendall_rejects) / num_simulations)
+}
+
+power_normal <- calculate_power()
+names(power_normal) <- c("Pearson", "Spearman", "Kendall")
+print(power_normal)
+
+calculate_power_exponential <- function() {
+  pearson_rejects <- 0
+  spearman_rejects <- 0
+  kendall_rejects <- 0
+  
+  for (i in 1:num_simulations) {
+    x <- rexp(n, rate = 1)
+    y <- x + rnorm(n)  
+    
+    pearson_test <- cor.test(x, y, method = "pearson")
+    spearman_test <- cor.test(x, y, method = "spearman")
+    kendall_test <- cor.test(x, y, method = "kendall")
+    
+    if (pearson_test$p.value < alpha) pearson_rejects <- pearson_rejects + 1
+    if (spearman_test$p.value < alpha) spearman_rejects <- spearman_rejects + 1
+    if (kendall_test$p.value < alpha) kendall_rejects <- kendall_rejects + 1
+  }
+  
+  return(c(pearson_rejects, spearman_rejects, kendall_rejects) / num_simulations)
+}
+
+power_exponential <- calculate_power_exponential()
+names(power_exponential) <- c("Pearson", "Spearman", "Kendall")
+print(power_exponential)
+```
+
+By running the above simulations, we can empirically demonstrate the differences in power between the tests under different distributions. The bivariate normal distribution will show the superiority of the Pearson test, while the bivariate exponential distribution will highlight the strengths of the nonparametric tests.
+
+## Exercise
+
+PROBLEM:If we obtain the powers for two methods under a particular simulation setting with $10,000$ experiments: say, $0.651$ for one method and $0.676$ for another method. We want to know if the powers are different at $0.05$ level.
+
+1.What is the corresponding hypothesis test problem?
+
+SOLVE:
+Null Hypothes is $H_0$: $p_{1}=p_{2}$
+
+Alternative Hypothes is $H_{1}$:$p_{1}\neq p_{2}$
+
+2.What test should we use? Z-test, two-sample t-test, paired-t test or McNemar test? Why?
+
+SOLVE:
+In this scenario, since we are comparing the powers of two methods based on the results of $10,000$ experiments, the appropriate test to use is the Z-test for two proportions:
+$z=\frac{p_1-p_2}{\sqrt{p(1-p)(\frac{1}{n_1}+\frac{1}{n_2})}}$
+
+where $p=\frac{x_1+x_2}{n_1+n_2}$ is the pooled proportion, $x_1$ and $x_2$ are the number of successes in this case,the number of experiments where the method was successful.
+$n_1$ and $n_2$ are the total number of experiments for each method both are $10,000$ in this case.
+
+3.Please provide the least necessary information for hypothesis testing.
+
+SOLVE:
+To perform hypothesis testing, we need the following essential information:
+
+1.Hypotheses
+Null Hypothesis ($H_0$):$p_{1}=p_{2}$.
+Alternative Hypothesis ($H_1$):$p_{1}\neq p_{2}$.
+
+2.Significance Level ($\alpha$)
+Commonly set at 0.05, this is the threshold for rejecting the null hypothesis.
+
+3.Sample Data
+The data collected from your experiments or observations, including:Sample sizes and Sample means.
+
+4.Test Statistic
+The formula to calculate the test statistic based on our data and the type of test.
+
+5.Critical Value or $p$-value
+The value from statistical tables or the $p$-value calculated from the test statistic to determine significance.
+
+6.Decision Rule
+Based on the comparison of the test statistic with the critical value or the $p$-value with $\alpha$, decide whether to reject or fail to reject the null hypothesis.
+
+# A-SA23204151-2024-10-27
+
+## Exercise 7.8
+
+PROBLEM: Refer to Exercise 7.7. Obtain the jackknife estimates of bias and standard error of $\hat \theta$ .
+
+SOLVE:
+
+We use the data from package "bootstrap" to obtain the jackknife estimates of bias and standard error.
+
+Code:
+```{r}
+library(bootstrap)
+data<-data(scor)
+n <- nrow(patch)
+y <- patch$y
+z <- patch$z
+theta.hat <- mean(y) / mean(z)
+theta.jack <- numeric(n)
+for (i in 1:n)
+  theta.jack[i] <- mean(y[-i]) / mean(z[-i])
+bias <- (n - 1) * (mean(theta.jack) - theta.hat)
+
+se <- sqrt((n-1) * mean((theta.jack - mean(theta.jack))^2))
+```
+
+Finally in this data, I get the bias : `r bias` and se: `r se`
+
+
+## Exercise 7.10
+
+PROBLEM: In Example 7.18, leave-one-out (n-fold) cross validation was used to select
+the best fitting model. Repeat the analysis replacing the Log-Log model
+with a cubic polynomial model. Which of the four models is selected by the
+cross validation procedure? Which model is selected according to maximum
+adjusted $R^{2}$?
+
+Code:
+```{r}
+library(DAAG)
+attach(ironslag)
+
+n <- length(magnetic)
+e1 <- e2 <- e3 <- e4 <- numeric(n)
+
+for (k in 1:n) {
+  y <- magnetic[-k]
+  x <- chemical[-k]
+  
+  J1 <- lm(y ~ x)
+  yhat1 <- J1$coef[1] + J1$coef[2] * chemical[k]
+  e1[k] <- magnetic[k] - yhat1
+  
+  J2 <- lm(y ~ x + I(x^2))
+  yhat2 <- J2$coef[1] + J2$coef[2] * chemical[k] + J2$coef[3] * chemical[k]^2
+  e2[k] <- magnetic[k] - yhat2
+  
+  J3 <- lm(log(y) ~ x)
+  logyhat3 <- J3$coef[1] + J3$coef[2] * chemical[k]
+  yhat3 <- exp(logyhat3)
+  e3[k] <- magnetic[k] - yhat3
+  
+  J4 <- lm(y ~ x + I(x^2) + I(x^3))
+  yhat4 <- J4$coef[1] + J4$coef[2] * chemical[k] + J4$coef[3] * chemical[k]^2 + J4$coef[4] * chemical[k]^3
+  e4[k] <- magnetic[k] - yhat4
+}
+
+prediction_errors <- c(mean(e1^2), mean(e2^2), mean(e3^2), mean(e4^2))
+print(prediction_errors)
+
+L2 <- lm(magnetic ~ chemical + I(chemical^2))
+L3 <- lm(log(magnetic) ~ chemical)
+L4 <- lm(magnetic ~ chemical + I(chemical^2) + I(chemical^3))
+
+adj_r2 <- c(summary(L2)$adj.r.squared, summary(L3)$adj.r.squared, summary(L4)$adj.r.squared)
+print(adj_r2)
+
+best_model_cv <- which.min(prediction_errors)
+best_model_adj_r2 <- which.max(adj_r2)
+
+model_names <- c("Linear", "Quadratic", "Exponential", "Cubic")
+cat("Best model according to cross-validation: ", model_names[best_model_cv], "\n")
+cat("Best model according to maximum adjusted R-squared: ", model_names[best_model_adj_r2], "\n")
+```
+
+## Exercise 8.1
+
+PROBLEM: Implement the two-sample Cram´er-von Mises test for equal distributions as a permutation test. Apply the test to the data in Examples 8.1 and 8.2.
+
+SOLVE:
+
+Another univariate test for the two-sample problem is the Cram´er-von Mises test. The Cram´er-von Mises statistic, which estimates the integrated squared distance between the distributions, is defined by
+$$
+W=\frac{mn}{(m+n)^2}[\sum_{i=1}^n(F_n(x_i)-G_m(x_i))^2+\sum_{j=1}^m(F_n(y_j)-G_m(y_j))^2]
+$$
+where $F_n$ is the ecdf of the sample $x_1,\cdots,x_n$ and $G_m$ is the ecdf of the sample $y_1,\cdots,y_m$. Large values of W are significant.
+
+From the above definition, we give a function to generate W.
+
+Code:
+```{r}
+CM_W <- function(x,y)
+{
+  n <- length(x)
+  m <- length(y)
+  
+  F_n <- ecdf(x)
+  G_m <- ecdf(y)
+  
+  W <- m*n/(m+n)^2*(sum((F_n(x)-G_m(x))^2)+sum((F_n(y)-G_m(y))^2))
+  
+  return(W)
+}
+```
+
+Let's test the data in the two examples using the above function.
+
+Code:
+```{r}
+#generate data
+attach(chickwts)
+x <- sort(as.vector(weight[feed == "soybean"]))
+y <- sort(as.vector(weight[feed == "linseed"]))
+detach(chickwts)
+
+R <- 999 #number of replicates
+z <- c(x, y) #pooled sample
+K <- 1:26
+reps <- numeric(R) #storage for replicates
+W0 <- CM_W(x,y)
+
+for (i in 1:R) {
+#generate indices k for the first sample
+k <- sample(K, size = 14, replace = FALSE)
+x1 <- z[k]
+y1 <- z[-k] #complement of x1
+reps[i] <- CM_W(x1,y1)
+}
+p <- mean(c(W0, reps) >= W0)
+```
+
+From the above code, we get the p value of the final result as `r p`. So we have no good reason to reject the null hypothesis.
+
+## Exercise 8.2
+
+PROBLEM: Implement the bivariate Spearman rank correlation test for independence
+as a permutation test. The Spearman rank correlation test statistic can be obtained from function cor with method = "spearman". Compare the
+achieved significance level of the permutation test with the $p$-value reported
+by cor.test on the same samples.
+
+Code:
+```{r}
+set.seed(123)
+
+n <- 100
+x <- rnorm(n)
+y <- rnorm(n)
+
+spearman_stat <- cor(x, y, method = "spearman")
+
+permutation_test <- function(x, y, n_permutations = 1000) {
+  count <- 0
+  for (i in 1:n_permutations) {
+    y_permuted <- sample(y)
+    permuted_stat <- cor(x, y_permuted, method = "spearman")
+    if (abs(permuted_stat) >= abs(spearman_stat)) {
+      count <- count + 1
+    }
+  }
+  p_value <- count / n_permutations
+  return(p_value)
+}
+
+n_permutations <- 1000
+permutation_p_value <- permutation_test(x, y, n_permutations)
+
+cor_test_result <- cor.test(x, y, method = "spearman")
+cor_test_p_value <- cor_test_result$p.value
+
+cat("Spearman Rank Correlation Statistic:", spearman_stat, "\n")
+cat("Permutation Test p-value:", permutation_p_value, "\n")
+cat("cor.test p-value:", cor_test_p_value, "\n")
+```
+
+# A-SA23204151-2024-11-2
+
+## Exercise
+
+PROBLEM:
+
+Proof the Stationarity of Metropolis-Hastings sampler Algorithm in continuous situation.
+lgorithm(continuous situation)
+
+•Target pdf: $f(x)$.
+
+•Replace $i$ and $j$ with $s$ and $r$.
+
+•Proposal distribution (pdf): $g(r|s)$.
+
+•Acceptance probability: $a(s,r)=min\{\frac{f(r)g(s|r)}{f(s)g(r|s)},1\}$.
+
+•Transition kernel (mixture distribution):
+$K(r,s)=I(s\neq r)\alpha(r,s)g(s|r)+I(s=r)[1-\int\alpha(r,s)g(s|r)]$.
+
+•Stationarity:$K(s,r)f(s)=K(r,s)f(r)$.
+
+SOLVE:
+First, let's consider the case where $s\neq r$:
+$K(s,r)f(s) = \alpha(s,r)g(r|s)f(s)$
+$K(r,s)f(r) = \alpha(r,s)g(s|r)f(r)$
+
+Now, let's look at the acceptance probability $\alpha(s,r)$:
+$\alpha(s,r) = min\{1, \frac{f(r)g(s|r)}{f(s)g(r|s)}\}$
+
+We can rewrite this as:
+$\alpha(s,r) = min\{1, \frac{f(r)g(s|r)}{f(s)g(r|s)}\}$
+$\alpha(r,s) = min\{1, \frac{f(s)g(r|s)}{f(r)g(s|r)}\}$
+
+Now, let's consider two cases:
+Case 1: If $f(r)g(s|r) ≤ f(s)g(r|s)$,
+then: $\alpha(s,r) =\frac{f(r)g(s|r)}{f(s)g(r|s)}, \alpha(r,s)=1$
+
+Case 2: If $f(r)g(s|r) > f(s)g(r|s)$, 
+then: $\alpha(r,s)=1, \alpha(r,s) =\frac{f(s)g(r|s)}{f(r)g(s|sr)}$
+
+In both cases, we can see that:
+$\alpha(s,r)f(s)g(r|s) = \alpha(r,s)f(r)g(s|r)$
+
+This is equivalent to:
+$K(s,r)f(s) = K(r,s)f(r)$ for $s\neq r$
+
+For the case where $s=r$, the equality holds trivially:
+$K(s,s)f(s) = K(s,s)f(s)$
+
+## Exercise 9.3
+
+PROBLEM: Use the Metropolis-Hastings sampler to generate random variables from a
+standard Cauchy distribution. Discard the first $1000$ of the chain, and com-
+pare the deciles of the generated observations with the deciles of the standard
+Cauchy distribution (see qcauchy or qt with df=1). Recall that a Cauchy$(\theta, \eta)$
+distribution has density function
+
+$f(x)=\frac{1}{\theta\pi(1+[(x-\eta)/\theta]^{2})}, -\infty<x<\infty, \theta>0$
+
+The standard Cauchy has the Cauchy$(\theta=1, \eta=0)$ density. (Note that the
+standard Cauchy density is equal to the Student t density with one degree of
+freedom.)
+
+SOLVE:
+
+1)Define the target distribution: The standard Cauchy distribution has a density function that we can use to calculate the acceptance probability.
+
+2)Set up the Metropolis-Hastings algorithm: This involves initializing a starting point, proposing new points, and accepting or rejecting these points based on the acceptance criterion.
+
+3)Generate samples: Run the sampler for a sufficient number of iterations, discarding the first $1000$ samples as burn-in.
+
+4)Compare the deciles: Calculate the deciles of the generated samples and compare them with the theoretical deciles of the standard Cauchy distribution.
+
+Code:
+```{r}
+library(ggplot2)
+
+target_density <- function(x) {
+  1 / (pi * (1 + x^2))
+}
+
+metropolis_hastings <- function(n, initial, proposal_sd) {
+  samples <- numeric(n)
+  samples[1] <- initial
+  
+  for (i in 2:n) {
+    current <- samples[i - 1]
+    proposal <- rnorm(1, mean = current, sd = proposal_sd)
+    
+    acceptance_ratio <- target_density(proposal) / target_density(current)
+    
+    if (runif(1) < acceptance_ratio) {
+      samples[i] <- proposal
+    } else {
+      samples[i] <- current
+    }
+  }
+  
+  return(samples)
+}
+
+n_samples <- 10000
+initial_value <- 0
+proposal_sd <- 1
+
+set.seed(123)
+samples <- metropolis_hastings(n_samples, initial_value, proposal_sd)
+
+samples <- samples[-(1:1000)]
+
+generated_deciles <- quantile(samples, probs = seq(0.1, 0.9, by = 0.1))
+
+theoretical_deciles <- qcauchy(seq(0.1, 0.9, by = 0.1))
+
+comparison <- data.frame(
+  Decile = seq(0.1, 0.9, by = 0.1),
+  Generated = generated_deciles,
+  Theoretical = theoretical_deciles
+)
+
+print(comparison)
+
+ggplot(comparison, aes(x = Decile)) +
+  geom_line(aes(y = Generated, color = "Generated")) +
+  geom_line(aes(y = Theoretical, color = "Theoretical")) +
+  labs(title = "Comparison of Deciles",
+       y = "Value",
+       color = "Legend") +
+  theme_minimal()
+
+```
+
+
+## Exercise 9.8
+
+PROBLEM: Consider the bivariate density
+
+$f(x,y)=C\cdot C_{n}^{x}y^{x+a-1}(1-y)^{n-x+b-1}, x=0,1,...,n, 0\leq y\leq1$ 
+
+It can be shown that for fixed $a, b, n$, the conditional distribu-
+tions are Binomial$(n, y)$ and Beta$(x+ a, n− x+ b)$. Use the Gibbs sampler to
+generate a chain with target joint density $f(x, y)$.
+
+SOLVE:
+
+1)Define the conditional distributions: Based on the problem statement, we know that:
+The conditional distribution of $x$ given $y$ is Binomial$(n,y)$.
+The conditional distribution of $y$ given $x$ is Beta$(x+a,n-x+b)$.
+
+2)Set up the Gibbs sampler: We will initialize values for $x$ and $y$, and then iteratively sample from the conditional distributions.
+
+3)Generate samples: Run the Gibbs sampler for a specified number of iterations.
+
+Code:
+```{r}
+library(ggplot2)
+
+gibbs_sampler <- function(n_iter, n, a, b) {
+  x <- numeric(n_iter)
+  y <- numeric(n_iter)
+  
+  x[1] <- rbinom(1, n, 0.5)  
+  y[1] <- runif(1)          
+  
+  for (i in 2:n_iter) {
+    x[i] <- rbinom(1, n, y[i - 1])
+    
+    alpha <- x[i] + a
+    beta <- n - x[i] + b
+    y[i] <- rbeta(1, alpha, beta)
+  }
+  
+  return(data.frame(x = x, y = y))
+}
+
+n_iter <- 10000  
+n <- 10          
+a <- 2           
+b <- 3           
+
+set.seed(123) 
+samples <- gibbs_sampler(n_iter, n, a, b)
+
+ggplot(samples, aes(x = x, y = y)) +
+  geom_point(alpha = 0.5) +
+  labs(title = "Gibbs Sampler Samples",
+       x = "x (Binomial)",
+       y = "y (Beta)") +
+  theme_minimal()
+```
+
+
+
+## Exercise
+
+PROBLEM: For each of the above exercise, use the Gelman-Rubin method
+to monitor convergence of the chain, and run the chain until it
+converges approximately to the target distribution according to $\hat{R}<1.2$.
+
+SOLVE:
+
+1)Run multiple chains: Initialize several chains with different starting points.
+
+2)Monitor convergence: Use the Gelman-Rubin statistic $\hat{R}$ to assess convergence.
+
+3)Continue sampling: Run the chains until $\hat{R}<1.2$2.
+
+Code:(9.3)
+```{r}
+library(ggplot2)
+library(coda)
+
+target_density <- function(x) {
+  1 / (pi * (1 + x^2))
+}
+
+metropolis_hastings <- function(n, initial, proposal_sd) {
+  samples <- numeric(n)
+  samples[1] <- initial
+  
+  for (i in 2:n) {
+    current <- samples[i - 1]
+    proposal <- rnorm(1, mean = current, sd = proposal_sd)
+    
+    acceptance_ratio <- target_density(proposal) / target_density(current)
+    
+    if (runif(1) < acceptance_ratio) {
+      samples[i] <- proposal
+    } else {
+      samples[i] <- current
+    }
+  }
+  
+  return(samples)
+}
+
+run_chains <- function(n_chains, n_samples, proposal_sd) {
+  chains <- list()
+  
+  for (i in 1:n_chains) {
+    set.seed(i) 
+    initial_value <- rnorm(1)  
+    chains[[i]] <- metropolis_hastings(n_samples, initial_value, proposal_sd)
+  }
+  
+  return(chains)
+}
+
+n_chains <- 5
+n_samples <- 10000
+proposal_sd <- 1
+
+chains <- run_chains(n_chains, n_samples, proposal_sd)
+
+mcmc_chains <- mcmc.list(lapply(chains, mcmc))
+
+gelman_rubin <- gelman.diag(mcmc_chains)
+
+print(gelman_rubin)
+
+while (gelman_rubin$psrf[1] >= 1.2) {
+  new_chains <- run_chains(n_chains, n_samples, proposal_sd)
+  mcmc_chains <- mcmc.list(c(mcmc_chains, lapply(new_chains, mcmc)))
+  gelman_rubin <- gelman.diag(mcmc_chains)
+  print(gelman_rubin)
+}
+
+final_samples <- do.call(c, chains)
+final_samples <- final_samples[-(1:1000)]
+generated_deciles <- quantile(final_samples, probs = seq(0.1, 0.9, by = 0.1))
+theoretical_deciles <- qcauchy(seq(0.1, 0.9, by = 0.1))
+
+comparison <- data.frame(
+  Decile = seq(0.1, 0.9, by = 0.1),
+  Generated = generated_deciles,
+  Theoretical = theoretical_deciles
+)
+
+print(comparison)
+
+ggplot(comparison, aes(x = Decile)) +
+  geom_line(aes(y = Generated, color = "Generated")) +
+  geom_line(aes(y = Theoretical, color = "Theoretical")) +
+  labs(title = "Comparison of Deciles",
+       y = "Value",
+       color = "Legend") +
+  theme_minimal()
+```
+
+
+Code:(9.8)
+```{r}
+library(ggplot2)
+
+gibbs_sampler <- function(n_iter, n, a, b, init_x, init_y) {
+  x <- numeric(n_iter)
+  y <- numeric(n_iter)
+  
+  x[1] <- init_x  
+  y[1] <- init_y  
+  
+  for (i in 2:n_iter) {
+    x[i] <- rbinom(1, n, y[i - 1])
+    
+    alpha <- x[i] + a
+    beta <- n - x[i] + b
+    y[i] <- rbeta(1, alpha, beta)
+  }
+  
+  return(data.frame(x = x, y = y))
+}
+
+gelman_rubin <- function(chains) {
+  m <- ncol(chains)
+  n <- nrow(chains)
+  
+  chain_means <- colMeans(chains)
+  overall_mean <- mean(chain_means)
+  
+  B <- n * sum((chain_means - overall_mean)^2) / (m - 1)
+  W <- mean(apply(chains, 2, var))  
+  
+  R_hat <- sqrt((W * (n - 1) / n) + (B / n)) / W
+  return(R_hat)
+}
+
+n_iter <- 10000  
+n <- 10          
+a <- 2           
+b <- 3           
+n_chains <- 4 
+chains <- list()
+
+set.seed(123)
+for (i in 1:n_chains) {
+  init_x <- rbinom(1, n, 0.5)
+  init_y <- runif(1)
+  chains[[i]] <- gibbs_sampler(n_iter, n, a, b, init_x, init_y)
+}
+
+combined_chains <- do.call(cbind, lapply(chains, function(chain) chain$x))
+
+R_hat <- Inf
+while (R_hat >= 1.2) {
+  for (i in 1:n_chains) {
+    init_x <- rbinom(1, n, 0.5)
+    init_y <- runif(1)
+    new_chain <- gibbs_sampler(n_iter, n, a, b, init_x, init_y)
+    chains[[i]] <- rbind(chains[[i]], new_chain)
+  }
+  
+  combined_chains <- do.call(cbind, lapply(chains, function(chain) chain$x))
+  R_hat <- gelman_rubin(combined_chains)
+}
+
+last_chain <- chains[[1]]
+ggplot(last_chain, aes(x = x, y = y)) +
+  geom_point(alpha = 0.5) +
+  labs(title = "Gibbs Sampler Samples After Convergence",
+       x = "x (Binomial)",
+       y = "y (Beta)") +
+  theme_minimal()
+```
+
+# A-SA23204151-2024-11-9
+
+## Exercise 11.3
+
+(a)Write a function to compute the $k^{th}$ term in
+$\sum_{k=0}^{\infty}\frac{(-1)^{k}}{k!2^{k}}\frac{||a||^{2k+2}}{(2k+1)(2k+2)}\frac{\Gamma(\frac{d+1}{2})\Gamma(k+\frac{3}{2})}{\Gamma(k+\frac{d}{2}+1)}$
+where $d\geq1$ is an integer, $a$ is a vector in $\mathbb{R}^{d}$, and $||\cdot||$ denotes the Euclidean norm. Perform the arithmetic so that the coeﬃcients can be computed for (almost) arbitrarily large $k$ and $d$. (This sum converges for all $a\in\mathbb{R}^{d}$).
+
+(b)Modify the function so that it computes and returns the sum.
+
+(c)Evaluate the sum when $a=(1,2)^{T}$
+
+Code:
+```{r}
+#(a)
+compute_kth_term <- function(k, a, d) {
+  norm_a <- sqrt(sum(a^2))  
+  term <- ((-1)^k / factorial(k) / (2^k)) * 
+          (norm_a^(2 * k + 2) / ((2 * k + 1) * (2 * k + 2))) * 
+          (gamma((d + 1) / 2) * gamma(k + 1.5) / gamma(k + d / 2 + 1))
+  return(term)
+}
+
+#(b)
+compute_sum <- function(a, d, max_k) {
+  total_sum <- 0
+  for (k in 0:max_k) {
+    total_sum <- total_sum + compute_kth_term(k, a, d)
+  }
+  return(total_sum)
+}
+
+#(c)
+a <- c(1, 2)
+d <- 2
+max_k <- 100
+
+result <- compute_sum(a, d, max_k)
+print(result)
+```
+
+
+## Exercise 11.8
+
+Write a function to solve the equation
+
+$\frac{2\Gamma(\frac{k}{2})}{\sqrt{\pi(k-1)}\Gamma(\frac{k-1}{2})}\int_{0}^{c_{k-1}}(1+\frac{u^{2}}{k-1})^{-k/2}du=\frac{2\Gamma(\frac{k+1}{2})}{\sqrt{\pi k}\Gamma(\frac{k}{2})}\int_{0}^{c_{k}}(1+\frac{u^{2}}{k})^{-(k+1)/2}du$ for $a$
+
+, where $c_{k}=\sqrt{\frac{a^{2}k}{k+1-a^{2}}}$
+
+Code:
+```{r}
+solve_equation <- function(k, tolerance = 1e-6, max_iterations = 1000) {
+  integral_left <- function(a, k) {
+    c_k_minus_1 <- sqrt((a^2 * (k-1)) / (k - a^2))
+    
+    integrate(function(u) {
+      (1 + u^2 / (k-1))^(-k/2)
+    }, 0, c_k_minus_1)$value
+  }
+  
+  integral_right <- function(a, k) {
+    c_k <- sqrt((a^2 * k) / (k + 1 - a^2))
+    
+    integrate(function(u) {
+      (1 + u^2 / k)^(-(k+1)/2)
+    }, 0, c_k)$value
+  }
+  
+  left_side <- function(a, k) {
+    (2 * gamma(k/2)) / (sqrt(pi * (k-1)) * gamma((k-1)/2)) * integral_left(a, k)
+  }
+  
+  right_side <- function(a, k) {
+    (2 * gamma((k+1)/2)) / (sqrt(pi * k) * gamma(k/2)) * integral_right(a, k)
+  }
+  
+  bisection_solve <- function(k, tolerance, max_iterations) {
+    lower <- 0
+    upper <- sqrt(k)
+    
+    for (i in 1:max_iterations) {
+      a <- (lower + upper) / 2
+      
+      left_val <- left_side(a, k)
+      right_val <- right_side(a, k)
+      
+      if (abs(left_val - right_val) < tolerance) {
+        return(a)
+      }
+      
+      if (left_val > right_val) {
+        upper <- a
+      } else {
+        lower <- a
+      }
+    }
+    
+    warning("Maximum iterations reached without convergence")
+    return(NA)
+  }
+  
+  result <- bisection_solve(k, tolerance, max_iterations)
+  return(result)
+}
+
+k_values <- c(3, 5, 10)
+for (k in k_values) {
+  a_solution <- solve_equation(k)
+  cat("For k =", k, ", a =", a_solution, "\n")
+}
+```
+
+## Exercise 
+
+Suppose $T_{1},...,T_{n}$ are i.i.d. samples drawn from the exponential distribution with expectation $\lambda$. Those values greater than $\tau$ are not observed due to right censorship, so that the observed values are $Y_{i}=T_{i}I(T_{i}\leq\tau)+\tau I(T_{i}>\tau)$, $i=1,2,..,n$. Suppose $\tau=1$ and the observed $Y_{i}$ values are as follows:
+$0.54,0.48,0.33,0.43,1.00,1.00,0.91,1.00,0.21,0.85$.Use the E-M algorithm to estimate $\lambda$, compare your result with the observed data MLE (note: $Y_{i}$ follows a mixture distribution).
+
+Code:
+```{r}
+Y <- c(0.54, 0.48, 0.33, 0.43, 1.00, 1.00, 0.91, 1.00, 0.21, 0.85)
+
+em_algorithm <- function(Y, max_iter = 100, tol = 1e-6) {
+  lambda <- 1
+  
+  for (iter in 1:max_iter) {
+    p_censored <- sum(Y == 1) / length(Y)
+    
+    expected_values <- ifelse(Y < 1, Y, 1) 
+    
+    lambda_new <- length(Y) / sum(expected_values)
+    
+    if (abs(lambda_new - lambda) < tol) {
+      break
+    }
+    
+    lambda <- lambda_new
+  }
+  
+  return(lambda)
+}
+
+lambda_estimate <- em_algorithm(Y)
+lambda_estimate
+
+mle_lambda <- length(Y) / sum(Y[Y < 1])
+mle_lambda
+```
+
+# A-SA23204151-2024-11-15
+
+## Exercise 11.7
+
+Use the simplex algorithm to solve the following problem.
+Minimize $4x + 2y + 9z$ subject to
+$2x+y+z\leq2$,
+$x-y+3z\leq3$,
+$x\geq0$,$y\geq0$,$z\geq0$
+
+code:
+```{r}
+simplex_solver <- function(c, A, b) {
+  m <- nrow(A)
+  n <- ncol(A)
+  
+  tableau <- matrix(0, nrow = m + 1, ncol = n + m + 1)
+  
+  tableau[1:m, 1:n] <- A
+  tableau[1:m, (n+1):(n+m)] <- diag(m)
+  tableau[1:m, n+m+1] <- b
+  
+  tableau[m+1, 1:n] <- -c
+  
+  while (any(tableau[m+1, 1:n] < 0)) {
+    enter_col <- which.min(tableau[m+1, 1:n])
+    
+    ratios <- rep(Inf, m)
+    for (i in 1:m) {
+      if (tableau[i, enter_col] > 0) {
+        ratios[i] <- tableau[i, n+m+1] / tableau[i, enter_col]
+      }
+    }
+    
+    leave_row <- which.min(ratios[ratios != Inf])
+    
+    pivot <- tableau[leave_row, enter_col]
+    
+    tableau[leave_row, ] <- tableau[leave_row, ] / pivot
+    
+    for (i in 1:(m+1)) {
+      if (i != leave_row) {
+        factor <- tableau[i, enter_col]
+        tableau[i, ] <- tableau[i, ] - factor * tableau[leave_row, ]
+      }
+    }
+  }
+  
+  solution <- rep(0, n)
+  for (j in 1:n) {
+    col <- tableau[1:m, j]
+    if (sum(col) == 1 && col[which(col == 1)] == 1) {
+      row <- which(col == 1)
+      solution[j] <- tableau[row, n+m+1]
+    }
+  }
+  
+  return(list(
+    solution = solution,
+    objective_value = -tableau[m+1, n+m+1]
+  ))
+}
+
+c <- c(4, 2, 9) 
+A <- matrix(c(2, 1, 1,   
+              1, -1, 3), 
+            nrow = 2, byrow = TRUE)
+b <- c(2, 3) 
+
+result <- simplex_solver(c, A, b)
+
+cat("最优解：\n")
+print(result$solution)
+cat("\n目标函数值：\n")
+print(result$objective_value)
+```
+
+
+## Exercise 3
+
+Use both for loops and lapply() to fit linear models to the
+mtcars using the formulas stored in this list:
+formulas <- list(
+mpg ~ disp,
+mpg ~ I(1 / disp),
+mpg ~ disp + wt,
+mpg ~ I(1 / disp) + wt
+)
+
+code:
+```{r}
+formulas <- list(
+  mpg ~ disp,
+  mpg ~ I(1 / disp),
+  mpg ~ disp + wt,
+  mpg ~ I(1 / disp) + wt
+)
+
+models_lapply <- lapply(formulas, function(formula) {
+  lm(formula, data = mtcars)
+})
+
+lapply(models_lapply, summary)
+
+```
+
+## Exercise 4
+
+Fit the model mpg ~ disp to each of the bootstrap replicates，of mtcars in the list below by using a for loop and lapply().
+Can you do it without an anonymous function?
+bootstraps <- lapply(1:10, function(i) { rows <- sample(1:nrow(mtcars), rep = TRUE) mtcars[rows, ]})
+
+code:
+```{r}
+sample_rows <- function(x) {
+  rows <- sample(1:nrow(mtcars), replace = TRUE)
+  mtcars[rows, ]
+}
+
+bootstraps <- lapply(1:10, sample_rows)
+```
+
+## Exercise 5
+
+For each model in the previous two exercises, extract $R^{2}$ using the function below.
+rsq <- function(mod) summary(mod)$r.squared
+
+code(3):
+```{r}
+formulas <- list(
+  mpg ~ disp,
+  mpg ~ I(1 / disp),
+  mpg ~ disp + wt,
+  mpg ~ I(1 / disp) + wt
+)
+
+models_lapply <- lapply(formulas, function(formula) {
+  lm(formula, data = mtcars)
+})
+
+rsq <- function(mod) summary(mod)$r.squared
+
+rsq_values_lapply <- sapply(models_lapply, rsq)
+
+rsq_values_lapply
+```
+
+code(4)
+```{r}
+sample_rows <- function() {
+  rows <- sample(1:nrow(mtcars), replace = TRUE)
+  mtcars[rows, ]
+}
+
+bootstraps <- lapply(1:10, function(i) sample_rows())
+
+models_lapply_bootstrap <- lapply(bootstraps, function(data) {
+  lm(mpg ~ disp, data = data)
+})
+
+rsq_values_lapply_bootstrap <- sapply(models_lapply_bootstrap, rsq)
+
+rsq_values_lapply_bootstrap
+```
+
+## Exercise 3
+
+The following code simulates the performance of a t-test for
+non-normal data. Use sapply() and an anonymous function
+to extract the p-value from every trial.
+trials <- replicate(100,t.test(rpois(10, 10), rpois(7, 10)),simplify = FALSE)
+Extra challenge: get rid of the anonymous function by using
+[[ directly.
+
+code:
+```{r}
+trials <- replicate(100, t.test(rpois(10, 10), rpois(7, 10)), simplify = FALSE)
+
+p_values <- sapply(trials, `[[`, "p.value")
+
+```
+
+## Exercise 6
+
+Implement a combination of Map() and vapply() to create an
+lapply() variant that iterates in parallel over all of its inputs
+and stores its outputs in a vector (or a matrix). What argu-
+ments should the function take?
+
+code:
+```{r}
+parallel_vapply <- function(X, FUN, FUN.VALUE, ..., 
+                            cores = parallel::detectCores() - 1, 
+                            simplify = TRUE) {
+  if (!is.vector(X) && !is.list(X)) {
+    stop("X must be a vector or list")
+  }
+  
+  library(parallel)
+  
+  cl <- makeCluster(cores)
+  
+  results <- parLapply(cl, X, function(x) {
+    tryCatch({
+      FUN(x, ...)
+    }, error = function(e) {
+      warning(paste("Error processing element:", e$message))
+      NULL
+    })
+  })
+  
+  stopCluster(cl)
+  
+  if (simplify) {
+    results <- do.call(rbind, results)
+  }
+  
+  return(results)
+}
+```
+
+## Exercise 4
+
+Make a faster version of chisq.test() that only computes the
+chi-square test statistic when the input is two numeric vectors with no missing values. You can try simplifying chisq.test() or by coding from the mathematical definition (http://en.wikipedia.org/wiki/Pearson%27s_chi-squared_test).
+
+code:
+```{r}
+fast_chisq_test <- function(x, y) {
+  if (!is.numeric(x) || !is.numeric(y)) {
+    stop("Inputs must be numeric vectors")
+  }
+  
+  if (any(is.na(x)) || any(is.na(y))) {
+    stop("Inputs cannot contain missing values")
+  }
+  
+  cont_table <- table(x, y)
+  
+  row_totals <- rowSums(cont_table)
+  col_totals <- colSums(cont_table)
+  total <- sum(cont_table)
+  
+  expected <- outer(row_totals, col_totals) / total
+  
+  chi_sq <- sum((cont_table - expected)^2 / expected)
+  
+  df <- (length(row_totals) - 1) * (length(col_totals) - 1)
+  
+  p_value <- pchisq(chi_sq, df, lower.tail = FALSE)
+  
+  list(
+    statistic = chi_sq,
+    p.value = p_value,
+    df = df
+  )
+}
+
+x <- sample(1:3, 100, replace = TRUE)
+y <- sample(1:3, 100, replace = TRUE)
+
+result <- fast_chisq_test(x, y)
+print(result)
+```
+
+## Exercise 5
+
+Can you make a faster version of table() for the case of an
+input of two integer vectors with no missing values? Can you
+use it to speed up your chi-square test?
+
+code:
+```{r}
+fast_table <- function(x, y) {
+  stopifnot(is.integer(x), is.integer(y))
+  
+  ux <- unique(x)
+  uy <- unique(y)
+  
+  result <- matrix(0L, nrow = length(ux), ncol = length(uy),
+                   dimnames = list(as.character(ux), as.character(uy)))
+  
+  for (i in seq_along(x)) {
+    result[as.character(x[i]), as.character(y[i])] <- 
+      result[as.character(x[i]), as.character(y[i])] + 1L
+  }
+  
+  return(result)
+}
+
+fast_chisq_test <- function(x, y) {
+  cont_table <- fast_table(x, y)
+  
+  chi_sq <- sum((cont_table - 
+                   outer(rowSums(cont_table), colSums(cont_table)) / 
+                   sum(cont_table))^2 / 
+                  (outer(rowSums(cont_table), colSums(cont_table)) / 
+                     sum(cont_table)))
+  
+  df <- (nrow(cont_table) - 1) * (ncol(cont_table) - 1)
+  p_value <- 1 - pchisq(chi_sq, df)
+  
+  return(list(
+    statistic = chi_sq,
+    p.value = p_value,
+    parameter = df
+  ))
+}
+
+compare_performance <- function(x, y, times = 100) {
+  start_time <- Sys.time()
+  for (i in 1:times) {
+    table(x, y)
+  }
+  base_table_time <- as.numeric(Sys.time() - start_time)
+  
+  start_time <- Sys.time()
+  for (i in 1:times) {
+    fast_table(x, y)
+  }
+  fast_table_time <- as.numeric(Sys.time() - start_time)
+  
+  start_time <- Sys.time()
+  for (i in 1:times) {
+    chisq.test(x, y)
+  }
+  base_chisq_time <- as.numeric(Sys.time() - start_time)
+  
+  start_time <- Sys.time()
+  for (i in 1:times) {
+    fast_chisq_test(x, y)
+  }
+  fast_chisq_time <- as.numeric(Sys.time() - start_time)
+  
+  cat("Base table() time:", base_table_time, "seconds\n")
+  cat("Fast table time:", fast_table_time, "seconds\n")
+  cat("Base chisq.test() time:", base_chisq_time, "seconds\n")
+  cat("Fast chisq test time:", fast_chisq_time, "seconds\n")
+}
+
+set.seed(123)
+x <- sample(1:5, 1000, replace = TRUE)
+y <- sample(1:5, 1000, replace = TRUE)
+
+x <- as.integer(x)
+y <- as.integer(y)
+
+compare_performance(x, y)
+```
+
+# A-SA23204151-2024-11-23
+
+## Exercise 9.8
+
+Problem: 
+Consider the bivariate density 
+$f(x,y)=C_{n}^{x}y^{x+a-1}(1-y)^{n-x+b-1}$, $x=0,1,...,n$, $0\leq y\leq1$. It can be shown that for fixed $a,b,n$ the conditional distribu-
+tions are Binomial$(n,y)$ and Beta$(x+a, n−x+b)$. Use the Gibbs sampler to
+generate a chain with target joint density $f(x, y)$.
+
+Code:
+```{r}
+gibbs_sampler <- function(n_iter, a, b, n_total) {
+  x_samples <- numeric(n_iter)
+  y_samples <- numeric(n_iter)
+  
+  x_current <- round(n_total / 2)
+  y_current <- 0.5
+  
+  for (i in 1:n_iter) {
+    x_current <- rbinom(1, n_total, y_current)
+    
+    y_current <- rbeta(1, x_current + a, n_total - x_current + b)
+    
+    x_samples[i] <- x_current
+    y_samples[i] <- y_current
+  }
+  
+  return(list(x = x_samples, y = y_samples))
+}
+
+set.seed(123)
+result <- gibbs_sampler(n_iter = 10000, a = 2, b = 2, n_total = 20)
+
+par(mfrow = c(1, 2))
+hist(result$x, main = "Marginal Distribution of X")
+hist(result$y, main = "Marginal Distribution of Y")
+```
+
+## Exercise 
+
+Problem: 
+Compare the corresponding generated random numbers with those by the R function you wrote using the function “qqplot”.
+
+Code:
+```{r}
+n_iter <- 10000
+a <- 2
+b <- 2
+n_total <- 20
+
+result <- gibbs_sampler(n_iter = n_iter, a = a, b = b, n_total = n_total)
+
+x_comparison <- rbinom(10000, n_total, 0.5) 
+y_comparison <- rbeta(10000, a, b)     
+
+par(mfrow = c(1, 2)) 
+
+qqplot(result$x, x_comparison, main = "QQ Plot of X Samples", xlab = "Gibbs X Samples", ylab = "Binomial Samples")
+abline(0, 1, col = "red") 
+
+qqplot(result$y, y_comparison, main = "QQ Plot of Y Samples", xlab = "Gibbs Y Samples", ylab = "Beta Samples")
+abline(0, 1, col = "red")
+```
+
+## Exercise 
+
+Problem: 
+Compare the computation time of the two functions with the
+function “microbenchmark”.
+
+Code:
+```{r}
+library(microbenchmark)
+
+benchmark_function <- function(n_iter, a, b, n_total) {
+  x_samples <- rbinom(n_iter, n_total, 0.5)
+  y_samples <- rbeta(n_iter, a, b)
+  return(list(x = x_samples, y = y_samples))
+}
+
+n_iter <- 10000
+a <- 2
+b <- 2
+n_total <- 20
+
+benchmark_results <- microbenchmark(
+  GibbsSampler = gibbs_sampler(n_iter, a, b, n_total),
+  BenchmarkFunction = benchmark_function(n_iter, a, b, n_total),
+  times = 10 
+)
+
+print(benchmark_results)
+```
+
+## Exercise 
+
+Problem: 
+Comments your results.
+
+Solve:
+The QQ plots provide a visual comparison between the Gibbs sampling results and the theoretical distributions.
+
+Interpretation of QQ Plots:
+The diagonal line (red reference line) represents the ideal scenario where the sample distribution perfectly matches the theoretical distribution.
+
+If the points from the Gibbs sampling results align closely along this line, it indicates that the sampling results are consistent with the theoretical distribution.
+
+When examining the QQ plots, pay attention to the behavior of the tails, especially with larger sample sizes, as deviations in the tails may become more pronounced.
+
+Benchmarking Results:
+The microbenchmark library is used to compare the execution times of the Gibbs sampler and the benchmark function.
+By printing the benchmarking results, you can observe the average execution time and standard deviation for both methods. This helps assess the efficiency of the Gibbs sampler in practical applications.
+
+If the Gibbs sampler takes significantly longer than the benchmark function, it may be necessary to consider optimizing the algorithm or reducing the number of iterations.

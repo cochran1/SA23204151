@@ -1,0 +1,100 @@
+---
+title: "BackgroundsoftheFunctions"
+author: "SA23204151"
+date: "2024-12-3"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{BackgroundsoftheFunctions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Advanced Bayesian Causal Inference algorithm
+
+## Introduction
+The core of Bayesian causal inference lies in the construction of causal models. Causal models are often based on the Potential Outcomes Framework, which assumes that each individual will have different outcomes under different treatment conditions. We usually focus on the difference between the results under a certain treatment and the results without treatment.
+
+## Backgrounds of Advanced Bayesian Causal Inference algorithm
+1.Causal Inference Model: Let $X=X_{1},X_{2},...,X_{m}$ be a set of $m$ variables
+Goal: Estimate causal relationships $P(X_{j}\rightarrow X_{i})$ for all $i\neq j$
+
+2.MCMC Sampling Strategy:
+Uses Metropolis-Hastings sampling with a normal distribution.
+Sampling distribution:$\theta_{ij}\sim N(0,1)$
+Causal strength estimation through iterative sampling
+
+## Algorithmic Steps
+1.Initialization
+Create an $m\times m$ causal matrix $C$ initialized with zeros. $C_{ij}=0$ for all $i,j$
+
+2. MCMC Sampling Process
+Total iterations: $k$
+Burn-in period: $b$
+Sampling function:$\theta_{ij}(t)=N(0,1)$ for $t\in[1,k]$, $i\neq j$
+
+3. Causal Matrix Update
+Cumulative causal strength estimation: $C_{ij}=\frac{1}{k-b}\sum_{t=b+1}^{k}\theta_{ij}(t)$
+
+## Computational Complexity
+Time Complexity: $O(m^{2}\cdot k)$
+Space Complexity: $O(m^{2})$
+
+## Limitations
+Assumes linear causal relationships.
+
+Sensitive to prior distribution.
+
+Requires careful parameter tuning.
+
+# Advanced Bayesian Causal Inference algorithm
+
+## Introduction
+Random Forests are an ensemble learning method that constructs multiple decision trees during training and outputs the mode of the classes for classification or mean prediction for regression of the individual trees. 
+
+The key components include: 
+
+Bootstrap Aggregating Bagging: Randomly sampling the training data with replacement to create multiple datasets. 
+
+Random Feature Selection: At each split in a tree, a random subset of features is considered, which helps in reducing overfitting and increasing model robustness.
+
+## Backgrounds of Causal Random Forests
+Causal Random Forests adapt the Random Forest framework to estimate causal effects. The main ideas include:
+
+Treatment Assignment: In CRF, each observation is associated with a treatment indicator. The goal is to estimate the Average Treatment Effect ATE or Conditional Average Treatment Effect CATE.
+
+Splitting Criteria: Instead of using traditional impurity measures like Gini impurity or mean squared error, CRFs use a splitting criterion that accounts for treatment assignment. This often involves estimating the potential outcomes under both treatment and control conditions.
+
+## Mathematical Framework
+Potential Outcomes Framework: For each unit $i$, let $Y_{i}(1)$ be the potential outcome if treated and $Y_{i}(0)$ be the potential outcome if not treated. The observed outcome $Y_{i}$ can be expressed as:
+$$
+Y_{i}=T_{i}\cdot Y_{i}(1)+(1-T_{i})Y_{i}(0)
+$$
+where $T_{i]$ is the treatment indicator $1$ if treated, $0$ otherwise.
+
+Estimating CATE: The goal is to estimate the conditional average treatment effect given covariates $X$:
+$$
+CATE(X)=E[Y(1)|X]-E[Y(0)|X]
+$$
+Causal Random Forests estimate this by fitting separate models for the treated and control groups and then calculating the difference.
+
+## Algorithmic Steps
+Data Preparation: Prepare the dataset with treatment indicators and covariates.
+
+Bootstrap Sampling: Create multiple bootstrap samples from the dataset.
+
+Tree Construction: For each bootstrap sample, construct a decision tree using the modified splitting criteria that accounts for treatment assignment.
+
+Prediction: For a new observation, predict the potential outcomes under both treatment and control conditions using the ensemble of trees.
+
+Estimate CATE: Calculate the CATE by taking the difference of the predicted outcomes.
+
+## Advantages of Causal Random Forests
+Flexibility: CRFs can handle high-dimensional data and complex interactions between features.
+
+Robustness: By averaging over many trees, CRFs reduce variance and improve the stability of causal estimates.
+
+Interpretability: The model can provide insights into which features are most important for predicting treatment effects.
