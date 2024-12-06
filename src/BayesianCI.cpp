@@ -19,7 +19,6 @@ using namespace Rcpp;
  //' @export
  // [[Rcpp::export]]
  NumericMatrix advancedBayesianCausalInference(NumericMatrix data, int iterations, int burnin) {
-   int n = data.nrow();
    int m = data.ncol();
    NumericMatrix causal_matrix(m, m);
    
