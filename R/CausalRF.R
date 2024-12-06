@@ -11,8 +11,6 @@
 #' @param alpha The significance level for the confidence intervals.
 #' @return A list containing estimated treatment effects and other relevant statistics.
 #' @import randomForest
-#' @import dplyr
-#' @import purrr
 #' @export
 causal_random_forest <- function(X, Y, W, num.trees = 500, mtry = NULL, min.node.size = 5, sample.fraction = 0.632, alpha = 0.05) {
   # Check inputs
