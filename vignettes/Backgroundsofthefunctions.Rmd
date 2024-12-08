@@ -50,7 +50,7 @@ Sensitive to prior distribution.
 
 Requires careful parameter tuning.
 
-# Advanced Bayesian Causal Inference algorithm
+# Causal Random Forests algorithm
 
 ## Introduction
 Random Forests are an ensemble learning method that constructs multiple decision trees during training and outputs the mode of the classes for classification or mean prediction for regression of the individual trees. 
